@@ -664,6 +664,9 @@ func (me *regularTrackerAnnounceDispatcher) singleAnnounce(
 	}
 
 	me.torrentClient.lock()
+	if t.isDropped() && me.torrentFromShortInfohash(key.ShortInfohash) != nil {
+		return
+	}
 	me.updateAnnounceState(key, func(state *announceState) {
 		state.Err = err
 		state.lastAttemptCompleted = now
