@@ -663,6 +663,19 @@ func (me *regularTrackerAnnounceDispatcher) singleAnnounce(
 		logger.Log(context.Background(), level, "announced", "resp", resp, "err", err)
 	}
 
+	statusEvent := TrackerAnnounceSuccessful
+	if err != nil {
+		statusEvent = TrackerAnnounceError
+	}
+	for _, cb := range t.callbacks().StatusUpdated {
+		cb(StatusUpdatedEvent{
+			Event:    statusEvent,
+			Url:      string(key.url),
+			InfoHash: t.InfoHash().HexString(),
+			Error:    err,
+		})
+	}
+
 	me.torrentClient.lock()
 	if t.isDropped() && me.torrentFromShortInfohash(key.ShortInfohash) != nil {
 		return
